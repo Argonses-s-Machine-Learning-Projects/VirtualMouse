@@ -2,10 +2,13 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import math
+import time
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 1280)
 cap.set(4, 720)
+
+pTime = 0
 
 handDetector = mp.solutions.hands.Hands(
     max_num_hands=1,
@@ -21,6 +24,10 @@ while True:
     success, img = cap.read()
     if not success:
         raise Exception("Something went wrong!")
+    
+    cTime = time.time()
+    fps = 1/(cTime-pTime)
+    pTime = cTime
 
     img = cv2.flip(img, 1)
 
@@ -50,6 +57,8 @@ while True:
                     distance = math.sqrt((thumb_x - index_x) ** 2 + (thumb_y - index_y) ** 2)
                     if distance < 30:
                         pyautogui.click()
+    
+    cv2.putText(img, f"FPS: {str(int(fps))}", (100, 50), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 3)
 
     cv2.imshow("Virtual Mouse", img)
 
