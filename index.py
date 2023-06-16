@@ -12,21 +12,23 @@ pTime = 0
 
 handDetector = mp.solutions.hands.Hands(
     max_num_hands=1,
-    min_detection_confidence=0.5,
+    min_detection_confidence=0.7,
     min_tracking_confidence=0.5
 )
 mpDraw = mp.solutions.drawing_utils
 screen_width, screen_height = pyautogui.size()
 index_x = 0
 index_y = 0
+click_threshold = 25
+click_duration = 0.1
 
 while True:
     success, img = cap.read()
     if not success:
         raise Exception("Something went wrong!")
-    
+
     cTime = time.time()
-    fps = 1/(cTime-pTime)
+    fps = 1 / (cTime - pTime)
     pTime = cTime
 
     img = cv2.flip(img, 1)
@@ -55,9 +57,12 @@ while True:
                     thumb_x = int((x / width) * screen_width)
                     thumb_y = int((y / height) * screen_height)
                     distance = math.sqrt((thumb_x - index_x) ** 2 + (thumb_y - index_y) ** 2)
-                    if distance < 30:
-                        pyautogui.click()
-    
+                    if distance < click_threshold:
+                        pyautogui.mouseDown()
+                        time.sleep(click_duration)
+                    else:
+                        pyautogui.mouseUp()
+
     cv2.putText(img, f"FPS: {str(int(fps))}", (100, 50), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 3)
 
     cv2.imshow("Virtual Mouse", img)
